@@ -30,6 +30,13 @@ class World:
     def setWalls(self,x,y):
         self.map[x][y]=1
         return self.map
+    
+    def is_feasable(self,x,y):
+        if(x<self.size and y<self.size and self.map[x][y]==0):
+            return True
+        else:
+            return False
+    
 
 class robot:
     def __init__(self,x,y):
@@ -40,27 +47,11 @@ class robot:
     def current_position(self):
         return self.position
     
-    def move_robot(self,x,y,mapw,limits):
-        if(is_feasable(x,y,mapw,limits)):
+    def move_robot(self,x,y,World):
+        if(World.is_feasable(x,y)):
             self.position=[x,y]
-            return self.position
-    '''
-    def move_up(self,x,y,mapw,limits):
-        if(is_feasable(x,y,mapw,limits)):
-            self.position=[self.x+1,self.y]
-            return self.position
-    def move_down(self,x,y,mapw,limits):
-        if(is_feasable(x,y,mapw,limits)):  
-            self.position=[self.x-1,self.y]
-            return self.position
-    def move_left(self,x,y,mapw,limits):
-        if(is_feasable(x,y,mapw,limits)):
-            self.position=[self.x,self.y-1]
-            return self.position    
-    def move_right(self,x,y,mapw,limits):
-            self.position=[self.x,self.y+1]
-            return self.position
-    '''
+        return self.position
+    
     def goal_reached(self,goalx,goaly):
         if self.position==[goalx,goaly]:
             return True
@@ -99,28 +90,17 @@ def read_data(filename):
     
     return content,map_size,walls,r2d2,goal
 
-def is_feasable(x,y,mapw,limits):
-        if(x<limits and y<limits and mapw[x][y]==0):
-            return True
-        else:
-            return False
-    
-    
 def main():
     r=read_data("world1.txt")
-    map_size=r[1]
+    map_size,wall_positions,robot_position,goal=r[1],r[2],r[3],r[4]
     c=World(map_size)
-    wall_positions=r[2]
-    robot_position=r[3]
     rbt=robot(int(robot_position[0][1]),int(robot_position[0][2]))
     print(rbt.current_position())
     for i in range(len(wall_positions)):  #set walls
         c.setWalls(int(wall_positions[i][1]),int(wall_positions[i][2]))
-    print(is_feasable(0, 1, c.map, map_size))
-    
+    print(c.is_feasable(1, 2))
     print(c.map)
-    print()
-    print(rbt.current_position())
+    #print(rbt.move_robot(0, 2,c))
     '''
     rbt.move_up(1, 0,c.map,map_size)
     print(rbt.current_position())
@@ -129,8 +109,12 @@ def main():
     rbt.move_right(0, 2,c.map,map_size)
     print(rbt.current_position())
     '''
+    #rbt.move_robot(7, 0,c)
+    rbt.move_robot(0, 7, c)
+    print(rbt.current_position())
 
-    if(rbt.goal_reached(7, 0)):
+    print(rbt.current_position())
+    if(rbt.goal_reached(int(goal[0][1]), int(goal[0][2]))):
         print("goal reached")
     
 if __name__ == '__main__':
