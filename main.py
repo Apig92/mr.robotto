@@ -1,4 +1,6 @@
 import re
+from copy import deepcopy
+from src import ADT
 
 class Stack:
     def __init__(self):
@@ -31,24 +33,28 @@ class World:
         self.map[x][y]=1
         return self.map
     
-    def is_feasable(self,x,y):
+    def is_feasible(self,x,y):
         if(x<self.size and y<self.size and self.map[x][y]==0):
             return True
         else:
             return False
+        
     
 
 class robot:
-    def __init__(self,x,y):
+    def __init__(self,x,y,goalx,goaly):
         self.x=x
         self.y=y
+        self.goalx= goalx
+        self.goaly= goaly
+        self.goal_reached = False
         self.position=[x,y]
     
     def current_position(self):
         return self.position
     
     def move_robot(self,x,y,World):
-        if(World.is_feasable(x,y)):
+        if(World.is_feasible(x,y)):
             self.position=[x,y]
         return self.position
     
@@ -57,14 +63,28 @@ class robot:
             return True
         else:
             return False
-    '''
-    def find_path(self,world,current_path,location,goalx,goaly,mapw,limits,x,y):
-        if self.goal_reached(goalx, goaly):
+    
+    def find_path(self,world,current_path,position):
+        if self.goal_reached:
             return False
-        if not is_feasable(x, y, mapw, limits):
+
+        if not world.is_feasible(position[0], position[1]):
             return False
-        if location == self.
-    '''
+
+        if position==[self.goalx,self.goaly]:
+            self.goal_reached = True
+            return current_path
+
+        east = [position[0], position[1] + 1]
+        west = [position[0], position[1] - 1]
+        north = [position[0] + 1, position[1]]
+        south = [position[0] - 1, position[1]]
+
+        world.setWalls(position[0], position[1])
+        path_copy = deepcopy(current_path)
+        path_copy.push(position)
+        return (self.find_path(world, path_copy, north) or self.find_path(world, path_copy, south) or
+                self.find_path(world, path_copy, east) or self.find_path(world, path_copy, west))
     
 def read_data(filename):
     f = open(filename,"r")
@@ -94,26 +114,22 @@ def main():
     r=read_data("world1.txt")
     map_size,wall_positions,robot_position,goal=r[1],r[2],r[3],r[4]
     c=World(map_size)
-    rbt=robot(int(robot_position[0][1]),int(robot_position[0][2]))
+    rbt=robot(int(robot_position[0][1]),int(robot_position[0][2]),int(goal[0][1]),int(goal[0][2]))
     print(rbt.current_position())
+    print(goal)
     for i in range(len(wall_positions)):  #set walls
         c.setWalls(int(wall_positions[i][1]),int(wall_positions[i][2]))
-    print(c.is_feasable(1, 2))
+    start_path = ADT.LinkedStack()
+    start_path.push(rbt.current_position())
     print(c.map)
-    #print(rbt.move_robot(0, 2,c))
-    '''
-    rbt.move_up(1, 0,c.map,map_size)
-    print(rbt.current_position())
-    rbt.move_up(1, 0,c.map,map_size) 
-    print(rbt.current_position())
-    rbt.move_right(0, 2,c.map,map_size)
-    print(rbt.current_position())
-    '''
-    #rbt.move_robot(7, 0,c)
-    rbt.move_robot(0, 7, c)
-    print(rbt.current_position())
-    if(rbt.goal_reached(int(goal[0][1]), int(goal[0][2]))):
-        print("goal reached")
+    path = rbt.find_path(c, start_path, rbt.current_position())
+    if path:
+        print("A path has been found, Size:")
+        print(c.map)
+
+    else:
+        print("Sorry, no path was found")
+    
     
 if __name__ == '__main__':
     main()
