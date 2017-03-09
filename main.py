@@ -112,8 +112,6 @@ def main():
     #rbt.move_robot(7, 0,c)
     rbt.move_robot(0, 7, c)
     print(rbt.current_position())
-
-    print(rbt.current_position())
     if(rbt.goal_reached(int(goal[0][1]), int(goal[0][2]))):
         print("goal reached")
     
